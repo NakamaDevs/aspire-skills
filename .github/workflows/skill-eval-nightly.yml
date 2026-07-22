@@ -62,6 +62,8 @@ jobs:
 
       - name: Run nightly evals
         if: steps.preflight.outputs.has_token == 'true'
+        # Nightly includes p2 stimuli, so allow extra headroom while still bounding stuck processes.
+        timeout-minutes: 180
         # COPILOT_GITHUB_TOKEN is read by @github/copilot-sdk (the vally
         # `copilot-sdk` executor) to invoke Copilot models. It is scoped to
         # this step only so install / upload never see it.
@@ -70,6 +72,7 @@ jobs:
         run: |
           vally eval \
             --suite nightly \
+            --timeout 2m \
             --output-dir ./results
 
       - name: Upload trajectories

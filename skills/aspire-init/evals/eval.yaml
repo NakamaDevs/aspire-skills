@@ -108,10 +108,16 @@ stimuli:
         config:
           substring: dotnet workload install aspire
   - name: init-existing-001
-    prompt: Add Aspire to this repository so I can orchestrate my Express frontend and .NET API.
+    prompt: >-
+      Before answering, invoke the installed skill that owns adding Aspire to an existing
+      repo. After it loads, give the safe non-interactive agent/CI command for this Express +
+      .NET API repository and explain the next wiring handoff. Do not invoke any other tool,
+      run commands, or modify files.
     tags:
       priority: p0
       area: core-flow
+      automation: non-interactive
+      command-check: supported-options
     graders:
       - type: prompt
         name: runs_aspire_init
@@ -134,6 +140,18 @@ stimuli:
         config:
           substring: aspire init
       - type: output-contains
+        name: uses_non_interactive
+        config:
+          substring: --non-interactive
+      - type: output-contains
+        name: selects_language
+        config:
+          substring: --language
+      - type: output-not-contains
+        name: no_unsupported_yes
+        config:
+          substring: --yes
+      - type: output-contains
         config:
           substring: aspireify
       - type: output-not-contains
@@ -153,11 +171,15 @@ stimuli:
         config:
           substring: dotnet workload install aspire
   - name: init-new-001
-    prompt: I'm starting a brand-new distributed app from scratch. Scaffold an Aspire starter project
-      for me.
+    prompt: >-
+      Before answering, invoke the installed skill that owns `aspire new`. After it loads,
+      give the safe non-interactive agent/CI command for a brand-new Aspire starter. Do not
+      invoke any other tool, run commands, or modify files.
     tags:
       priority: p0
       area: core-flow
+      automation: non-interactive
+      command-check: supported-options
     graders:
       - type: prompt
         name: uses_aspire_new
@@ -187,6 +209,22 @@ stimuli:
       - type: output-contains
         config:
           substring: aspire-starter
+      - type: output-contains
+        name: uses_non_interactive
+        config:
+          substring: --non-interactive
+      - type: output-contains
+        name: sets_name
+        config:
+          substring: --name
+      - type: output-contains
+        name: sets_output
+        config:
+          substring: --output
+      - type: output-not-contains
+        name: no_unsupported_yes
+        config:
+          substring: --yes
       - type: output-not-contains
         config:
           substring: dotnet new aspire
@@ -204,12 +242,18 @@ stimuli:
         config:
           substring: dotnet workload install aspire
   - name: init-py-001
-    prompt: Scaffold an Aspire FastAPI + React Python starter, and please include Redis.
+    prompt: >-
+      Before answering, invoke the installed skill that owns `aspire new`. After it loads,
+      give the exact safe non-interactive agent/CI command for an Aspire FastAPI + React
+      Python starter with Redis, and identify the AppHost language. Do not invoke any other
+      tool, run commands, or modify files.
     tags:
       priority: p0
       area:
         - core-flow
         - 13.3-breaking
+      automation: non-interactive
+      command-check: supported-options
     graders:
       - type: prompt
         name: uses_aspire_new_py_starter
@@ -236,6 +280,30 @@ stimuli:
       - type: output-contains
         config:
           substring: --use-redis-cache
+      - type: output-contains
+        name: uses_non_interactive
+        config:
+          substring: --non-interactive
+      - type: output-contains
+        name: sets_name
+        config:
+          substring: --name
+      - type: output-contains
+        name: sets_output
+        config:
+          substring: --output
+      - type: output-not-contains
+        name: no_unsupported_yes
+        config:
+          substring: --yes
+      - type: output-not-contains
+        name: no_unsupported_features
+        config:
+          substring: --features
+      - type: output-not-contains
+        name: no_unsupported_skip_install
+        config:
+          substring: --skip-install
       - type: output-not-contains
         config:
           substring: dotnet new aspire-py-starter
@@ -251,88 +319,147 @@ stimuli:
           substring: dotnet workload install aspire
   - name: should_trigger_01
     description: "Reason: Existing repo without AppHost — first-run init flow"
-    prompt: Add Aspire to this Express + .NET API repo
+    prompt: >-
+      Before answering, invoke the installed skill that owns adding Aspire to an existing
+      Express + .NET API repo. After it loads, explain the safe non-interactive command.
+      Do not invoke any other tool, run commands, or modify files.
     tags:
       priority: p1
       area: routing
+      automation: non-interactive
     graders:
       - type: skill-invocation
         name: invokes_aspire_init
         config:
           required:
             - aspire-init
+      - type: output-contains
+        name: uses_non_interactive
+        config:
+          substring: --non-interactive
   - name: should_trigger_02
     description: "Reason: Brand-new project — aspire new template selection"
-    prompt: Scaffold a new Aspire app from scratch
+    prompt: >-
+      Before answering, invoke the installed skill that owns `aspire new`. After it loads,
+      explain which template command would scaffold a brand-new Aspire app. Do not invoke
+      any other tool, run commands, or modify files.
     tags:
       priority: p1
       area: routing
+      regression: aspire-new-hang
+      automation: non-interactive
     graders:
       - type: skill-invocation
         name: invokes_aspire_init
         config:
           required:
             - aspire-init
+      - type: output-contains
+        name: uses_non_interactive
+        config:
+          substring: --non-interactive
   - name: should_trigger_03
     description: "Reason: Bootstrap = aspire init/new flow"
-    prompt: Bootstrap Aspire into this directory
+    prompt: >-
+      Before answering, invoke the installed skill that owns bootstrapping Aspire. After it
+      loads, explain how to choose and run the safe non-interactive command. Do not invoke
+      any other tool, run commands, or modify files.
     tags:
       priority: p1
       area: routing
+      automation: non-interactive
     graders:
       - type: skill-invocation
         name: invokes_aspire_init
         config:
           required:
             - aspire-init
+      - type: output-contains
+        name: uses_non_interactive
+        config:
+          substring: --non-interactive
   - name: should_trigger_04
     description: "Reason: Direct template scaffold request"
-    prompt: Run aspire new aspire-starter to create a new project
+    prompt: >-
+      Before answering, invoke the installed skill that owns `aspire new`. After it loads,
+      explain the safe non-interactive command for `aspire new aspire-starter`. Do not invoke
+      any other tool, run commands, or modify files.
     tags:
       priority: p1
       area: routing
+      regression: aspire-new-hang
+      automation: non-interactive
     graders:
       - type: skill-invocation
         name: invokes_aspire_init
         config:
           required:
             - aspire-init
+      - type: output-contains
+        name: uses_non_interactive
+        config:
+          substring: --non-interactive
   - name: should_trigger_05
     description: "Reason: Direct init request on existing repo"
-    prompt: Run aspire init in this repo
+    prompt: >-
+      Before answering, invoke the installed skill that owns `aspire init`. After it loads,
+      explain the safe non-interactive command for an existing repo. Do not invoke any other
+      tool, run commands, or modify files.
     tags:
       priority: p1
       area: routing
+      automation: non-interactive
     graders:
       - type: skill-invocation
         name: invokes_aspire_init
         config:
           required:
             - aspire-init
+      - type: output-contains
+        name: uses_non_interactive
+        config:
+          substring: --non-interactive
   - name: should_trigger_06
     description: "Reason: Existing Python repo needing AppHost — aspire init or aspire-py-starter"
-    prompt: Bootstrap Aspire into my FastAPI project
+    prompt: >-
+      Before answering, invoke the installed skill that owns adding Aspire to an existing
+      FastAPI project. After it loads, explain the safe non-interactive command. Do not invoke
+      any other tool, run commands, or modify files.
     tags:
       priority: p1
       area: routing
+      automation: non-interactive
     graders:
       - type: skill-invocation
         name: invokes_aspire_init
         config:
           required:
             - aspire-init
+      - type: output-contains
+        name: uses_non_interactive
+        config:
+          substring: --non-interactive
   - name: should_trigger_07
     description: "Reason: Greenfield TS AppHost — aspire new aspire-ts-starter"
-    prompt: Create a new Aspire TypeScript starter app
+    prompt: >-
+      Before answering, invoke the installed skill that owns `aspire new`. After it loads,
+      explain the command for a brand-new TypeScript starter app. Do not invoke any other
+      tool, run commands, or modify files.
     tags:
       priority: p1
       area: routing
+      regression: aspire-new-hang
+      automation: non-interactive
     graders:
       - type: skill-invocation
         name: invokes_aspire_init
         config:
           required:
             - aspire-init
+      - type: output-contains
+        name: uses_non_interactive
+        config:
+          substring: --non-interactive
   - name: should_trigger_08
     description: "Reason: aspireify is installed via aspire init / aspire agent init — init flow owns it"
     prompt: How do I install the aspireify skill via aspire init?

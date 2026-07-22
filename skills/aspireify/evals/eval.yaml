@@ -725,10 +725,13 @@ stimuli:
             - aspireify
   - name: should_not_trigger_08
     description: "Reason: aspire init (skeleton drop) routes to aspire-init"
-    prompt: Run aspire init to scaffold a new AppHost
+    prompt: >-
+      Which skill should handle `aspire init --language csharp --non-interactive` to scaffold
+      a new AppHost? Explain without running commands or modifying files.
     tags:
       priority: p1
       area: routing
+      automation: non-interactive
     graders:
       - type: skill-invocation
         name: does_not_invoke_aspireify

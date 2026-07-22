@@ -299,10 +299,14 @@ stimuli:
             - aspire
   - name: should_trigger_09
     description: "Reason: aspire init is part of the Aspire workflow"
-    prompt: Run aspire init to add Aspire to this repo
+    prompt: >-
+      Before answering, invoke the installed Aspire router skill. After it loads, explain
+      which workflow owns `aspire init --language csharp --non-interactive`. Do not invoke
+      any other tool, run commands, or modify files.
     tags:
       priority: p1
       area: routing
+      automation: non-interactive
     graders:
       - type: skill-invocation
         name: invokes_aspire
